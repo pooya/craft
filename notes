@@ -1,0 +1,2 @@
+Oct. 5:
+* The http url passed to the http.Get method should not have a tailing \n
