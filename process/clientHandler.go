@@ -23,7 +23,13 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 	idAndNumber := r.URL.Path[lenPath:]
 	var cmd, serialNumber int
 	fmt.Sscanf(idAndNumber, "%d/%d", &cmd, &serialNumber)
-	fmt.Fprintf(w, "Response: %s", processCommand(cmd, serialNumber))
+	resp, err := processCommand(cmd, serialNumber)
+
+	if err != nil {
+		http.NotFound(w, r)
+	} else {
+		fmt.Fprintf(w, "Response: %d\n", resp)
+	}
 }
 
 func startServer(port int) error {
