@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-var HostId int
+var UniqueId string
 
 func processCommandLineArguments() (int, int, error) {
 	var hostId = flag.Int("hostId", 0, "The unique id for the host.")
@@ -21,8 +21,8 @@ func processCommandLineArguments() (int, int, error) {
 	return *hostId, *port, nil
 }
 
-func getMyHostId() int {
-	return HostId
+func getMyUniqueId() string {
+	return UniqueId
 }
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 		fmt.Println("Problem parsing arguments:", err)
 		return
 	}
-	HostId = hostId
+	UniqueId = fmt.Sprintf("%d|%d", hostId, port)
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)
