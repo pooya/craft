@@ -6,6 +6,7 @@ import (
 )
 
 var UniqueId string
+var heartbeatChan chan bool
 
 func processCommandLineArguments() (int, int, error) {
 	var hostId = flag.Int("hostId", 0, "The unique id for the host.")
@@ -37,6 +38,7 @@ func main() {
 		fmt.Println("Problem opening file", err)
 		return
 	}
+	stateMachineInit()
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)

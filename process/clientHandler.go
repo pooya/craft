@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -9,7 +10,10 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Status is: %d\n", getMyState())
 }
 
-const lenPath = len("/command/")
+const (
+	lenCommandPath   = len("/command/")
+	lenHeartbeatPath = len("/heartbeat/")
+)
 
 /*
 Command is a number that we should set the status to.
@@ -20,7 +24,7 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, getLeader(), http.StatusFound)
 		return
 	}
-	idAndNumber := r.URL.Path[lenPath:]
+	idAndNumber := r.URL.Path[lenCommandPath:]
 	var cmd, serialNumber int
 	fmt.Sscanf(idAndNumber, "%d/%d", &cmd, &serialNumber)
 	resp, err := processCommand(cmd, serialNumber)
@@ -32,9 +36,16 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
+	sender := r.URL.Path[lenHeartbeatPath:]
+	log.Print("received heartbeat from ", sender)
+	heartbeatChan <- true
+}
+
 func startServer(port int) error {
 	http.HandleFunc("/status", getStatus)
 	http.HandleFunc("/command/", handleCommand)
+	http.HandleFunc("/heartbeat/", handleHeartBeat)
 	strPort := fmt.Sprintf(":%d", port)
 	return http.ListenAndServe(strPort, nil)
 }
