@@ -1,2 +1,4 @@
 Oct. 5:
 * The http url passed to the http.Get method should not have a tailing \n
+* We can use the os package and its Args array to look at the arguments
+one by one, but the flag package makes things much easier.
