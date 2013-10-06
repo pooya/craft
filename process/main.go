@@ -31,7 +31,7 @@ func main() {
 		fmt.Println("Problem parsing arguments:", err)
 		return
 	}
-	UniqueId = fmt.Sprintf("%d|%d", hostId, port)
+	UniqueId = fmt.Sprintf("%d_%d", hostId, port)
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)

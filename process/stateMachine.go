@@ -12,6 +12,14 @@ func getMyState() int {
 	return status
 }
 
+func amILeader() bool {
+	return status == LEADER
+}
+
+func getLeader() string {
+	return "the other guy"
+}
+
 func init() {
 	status = LEADER
 }
