@@ -32,6 +32,11 @@ func main() {
 		return
 	}
 	UniqueId = fmt.Sprintf("%d_%d", hostId, port)
+	err = initLogger()
+	if err != nil {
+		fmt.Println("Problem opening file", err)
+		return
+	}
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)
