@@ -18,7 +18,8 @@ const (
 
 const (
 	CONNECTION_TIMEOUT        = 100  // 100ms
-	MIN_WAIT_BEFORE_CANDIDACY = 1000 // 1000ms
+	HEARTBEAT_INTERVAL        = 1000 // 1s
+	MIN_WAIT_BEFORE_CANDIDACY = 2000 // 1000ms
 	MAX_WAIT_BEFORE_CANDIDACY = 5000 // 5000ms
 )
 
@@ -44,12 +45,25 @@ func getLeader() string {
 	return "the other guy"
 }
 
+func sendHeartBeats() {
+	for {
+		if status != LEADER {
+			return
+		}
+		log.Print("sending heartbeat")
+		node := Node{"0", 8080}
+		node.sendRequest("heartbeat/" + getMyUniqueId())
+		time.Sleep(HEARTBEAT_INTERVAL * time.Millisecond)
+	}
+}
+
 func transitionToLeader() {
 	if status != CANDIDATE {
 		panic("should be follower")
 	}
 	log.Print("I am the leader now.")
 	status = LEADER
+	go sendHeartBeats()
 }
 
 func captureVotes() {
