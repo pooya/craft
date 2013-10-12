@@ -14,6 +14,7 @@ type LogEntry struct {
 }
 
 var logFile *os.File
+var LatestEntry *LogEntry
 
 const (
 	PersistLocation = "/tmp/persist/"
@@ -21,6 +22,11 @@ const (
 
 func (l *LogEntry) persist() {
 	fmt.Fprintf(logFile, "%d|%d|%d|%d\n", l.term, l.index, l.response, l.serialNumber)
+	LatestEntry = l
+}
+
+func getHighestTerm() int {
+	return LatestEntry.term
 }
 
 func getLogEntry(serialNumber int) (*LogEntry, error) {
@@ -38,10 +44,6 @@ func getLogEntry(serialNumber int) (*LogEntry, error) {
 			return &l, nil
 		}
 	}
-}
-
-func accept(l LogEntry) {
-	l.persist()
 }
 
 func initLogger() error {

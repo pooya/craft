@@ -55,7 +55,7 @@ func sendHeartBeats() {
 		addNode(node)
 
 		//TODO make the following nonblocking with a timeout
-		node.sendRequest("heartbeat/" + getMyUniqueId())
+		node.sendRequest(HeartbeatPath + getMyUniqueId())
 		time.Sleep(HEARTBEAT_INTERVAL * time.Millisecond)
 	}
 }
@@ -88,10 +88,13 @@ func captureVotes() {
 }
 
 func voteIfEligible(sender string, term int) {
-    /* if term is more than what we've seen before, send vote */
-    /* if term is equal to what we have seen and we have voted in this term,
-        do not vote. */
-        /* other stuff? */
+	highestTerm := getHighestTerm()
+	if term <= highestTerm {
+		log.Print("Ignoring vote request for term: ", term,
+			" since we are at ", highestTerm)
+	} else {
+        //voteFor(sender)
+    }
 }
 
 func transitionToCandidate() {

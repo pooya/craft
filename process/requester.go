@@ -6,12 +6,15 @@ import (
 	"net/http"
 )
 
+func (node *Node) voteFor() {
+}
+
 func (node *Node) sendVoteRequest() {
-    node.sendRequest("voteforme")
+    node.sendRequest(VoteForMePath)
 }
 
 func (node *Node) sendRequest(req string) {
-	url := fmt.Sprintf("http://%s:%d/%s", node.ip, node.port, req)
+	url := fmt.Sprintf("http://%s:%d%s", node.ip, node.port, req)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Print("Error sending request", err)
