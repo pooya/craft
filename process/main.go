@@ -32,6 +32,7 @@ func main() {
 		fmt.Println("Problem parsing arguments:", err)
 		return
 	}
+	heartbeatChan = make(chan bool)
 	UniqueId = fmt.Sprintf("%d_%d", hostId, port)
 	err = initLogger()
 	if err != nil {

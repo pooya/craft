@@ -40,6 +40,7 @@ func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
 	sender := r.URL.Path[lenHeartbeatPath:]
 	log.Print("received heartbeat from ", sender)
 	heartbeatChan <- true
+	fmt.Fprintf(w, "Got it %s.\n", sender)
 }
 
 func startServer(port int) error {

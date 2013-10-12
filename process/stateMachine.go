@@ -52,6 +52,8 @@ func sendHeartBeats() {
 		}
 		log.Print("sending heartbeat")
 		node := Node{"0", 8080}
+
+		//TODO make the following nonblocking with a timeout
 		node.sendRequest("heartbeat/" + getMyUniqueId())
 		time.Sleep(HEARTBEAT_INTERVAL * time.Millisecond)
 	}
@@ -103,10 +105,9 @@ func selectLeader() {
 	heartbeat := true
 	for {
 		select {
-		/*
-		   case //TODO received heartbeat
-		       heartbeat = true
-		*/
+		case <-heartbeatChan:
+			log.Print("Got heartbeat.")
+			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {
 				if status == LEADER {
