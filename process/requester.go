@@ -6,14 +6,8 @@ import (
 	"net/http"
 )
 
-func sendVoteRequest(node *Node) {
-
-}
-
-func sendVoteRequests() {
-	for _, node := range Nodes {
-		sendVoteRequest(node)
-	}
+func (node *Node) sendVoteRequest() {
+    node.sendRequest("voteforme")
 }
 
 func (node *Node) sendRequest(req string) {
@@ -29,3 +23,10 @@ func (node *Node) sendRequest(req string) {
 		log.Print("sending request did not succeed: ", resp.Status)
 	}
 }
+
+func sendVoteRequests() {
+	for _, node := range Nodes {
+		node.sendVoteRequest()
+	}
+}
+

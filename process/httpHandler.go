@@ -11,8 +11,17 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 const (
-	lenCommandPath   = len("/command/")
-	lenHeartbeatPath = len("/heartbeat/")
+	StatusPath    = "/status/"
+	CommandPath   = "/command/"
+	HeartbeatPath = "/heartbeat/"
+	VoteForMePath = "/voteforme/"
+)
+
+const (
+	lenStatusPath    = len(StatusPath)
+	lenCommandPath   = len(CommandPath)
+	lenHeartbeatPath = len(HeartbeatPath)
+	lenVoteForMePath = len(CommandPath)
 )
 
 /*
@@ -43,10 +52,21 @@ func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Got it %s.\n", sender)
 }
 
+func handleVoteRequest(w http.ResponseWriter, r *http.Request) {
+	voteRequest := r.URL.Path[lenVoteForMePath:]
+
+	var term int
+	var sender string
+	fmt.Sscanf(voteRequest, "%d/%s", &term, &sender)
+	log.Print("received vote request from ", sender, " and term ", term)
+	voteIfEligible(sender, term)
+}
+
 func startServer(port int) error {
-	http.HandleFunc("/status", getStatus)
-	http.HandleFunc("/command/", handleCommand)
-	http.HandleFunc("/heartbeat/", handleHeartBeat)
+	http.HandleFunc(StatusPath, getStatus)
+	http.HandleFunc(CommandPath, handleCommand)
+	http.HandleFunc(HeartbeatPath, handleHeartBeat)
+	http.HandleFunc(VoteForMePath, handleVoteRequest)
 	strPort := fmt.Sprintf(":%d", port)
 	return http.ListenAndServe(strPort, nil)
 }

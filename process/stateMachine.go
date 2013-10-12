@@ -87,6 +87,13 @@ func captureVotes() {
 	}
 }
 
+func voteIfEligible(sender string, term int) {
+    /* if term is more than what we've seen before, send vote */
+    /* if term is equal to what we have seen and we have voted in this term,
+        do not vote. */
+        /* other stuff? */
+}
+
 func transitionToCandidate() {
 	if status != FOLLOWER {
 		panic("should be follower")
