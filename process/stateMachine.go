@@ -104,7 +104,7 @@ func transitionToCandidate() {
 	log.Print("I am a candidate now.")
 	status = CANDIDATE
 	go captureVotes()
-	sendVoteRequests()
+	sendVoteRequests(LatestEntry.term + 1)
 	voteChan <- 1
 }
 

@@ -11,10 +11,11 @@ func getStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 const (
-	StatusPath    = "/status/"
-	CommandPath   = "/command/"
-	HeartbeatPath = "/heartbeat/"
-	VoteForMePath = "/voteforme/"
+	StatusPath    = "/status/"    // sample 0:8080/status/
+	CommandPath   = "/command/"   // sample 0:8080/command/11/20
+	HeartbeatPath = "/heartbeat/" // sample 0:8080/heartbeat/2_8080
+	VoteForMePath = "/voteforme/" // sample 0:8080/voteforme/1/3_8080
+	VotePath      = "/vote/"      // sample 0:8080/vote/3_8080
 )
 
 const (

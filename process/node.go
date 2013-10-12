@@ -21,6 +21,13 @@ func getNode(id int, ip string, port int) *Node {
 	return &node
 }
 
+func findNode(uniqueId string) *Node {
+	if node, ok := Nodes[uniqueId]; ok {
+		return node
+	}
+	return nil
+}
+
 func addNode(node *Node) {
 	Nodes[node.uniqeId] = node
 }
