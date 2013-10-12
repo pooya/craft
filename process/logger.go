@@ -20,6 +20,13 @@ const (
 	PersistLocation = "/tmp/persist/"
 )
 
+func getNextTerm() int {
+	if LatestEntry != nil {
+		return LatestEntry.term + 1
+	}
+	return 0
+}
+
 func (l *LogEntry) persist() {
 	fmt.Fprintf(logFile, "%d|%d|%d|%d\n", l.term, l.index, l.response, l.serialNumber)
 	LatestEntry = l

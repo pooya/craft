@@ -93,8 +93,8 @@ func voteIfEligible(sender string, term int) {
 		log.Print("Ignoring vote request for term: ", term,
 			" since we are at ", highestTerm)
 	} else {
-        //voteFor(sender)
-    }
+		//voteFor(sender)
+	}
 }
 
 func transitionToCandidate() {
@@ -104,7 +104,7 @@ func transitionToCandidate() {
 	log.Print("I am a candidate now.")
 	status = CANDIDATE
 	go captureVotes()
-	sendVoteRequests(LatestEntry.term + 1)
+	sendVoteRequests(getNextTerm())
 	voteChan <- 1
 }
 
