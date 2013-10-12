@@ -6,9 +6,14 @@ import (
 	"net/http"
 )
 
-type Node struct {
-	ip   string
-	port int
+func sendVoteRequest(node *Node) {
+
+}
+
+func sendVoteRequests() {
+	for _, node := range Nodes {
+		sendVoteRequest(node)
+	}
 }
 
 func (node *Node) sendRequest(req string) {

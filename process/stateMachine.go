@@ -26,7 +26,7 @@ const (
 var status int
 var random *rand.Rand
 var LatestEvent int64
-var votes chan int
+var voteChan chan int
 
 func getMyState() int {
 	return status
@@ -51,7 +51,8 @@ func sendHeartBeats() {
 			return
 		}
 		log.Print("sending heartbeat")
-		node := Node{"0", 8080}
+		node := getNode(0, "0", 8080)
+		addNode(node)
 
 		//TODO make the following nonblocking with a timeout
 		node.sendRequest("heartbeat/" + getMyUniqueId())
@@ -71,7 +72,7 @@ func transitionToLeader() {
 func captureVotes() {
 	nVotes := 0
 	for {
-		x := <-votes
+		x := <-voteChan
 		if x == 0 {
 			log.Print("Someone asked us not to be the leader. Stepping down.")
 			transitionToFollower()
@@ -93,7 +94,8 @@ func transitionToCandidate() {
 	log.Print("I am a candidate now.")
 	status = CANDIDATE
 	go captureVotes()
-	votes <- 1
+	sendVoteRequests()
+	voteChan <- 1
 }
 
 func transitionToFollower() {
@@ -125,6 +127,6 @@ func selectLeader() {
 func stateMachineInit() {
 	transitionToFollower()
 	random = rand.New(rand.NewSource(1))
-	votes = make(chan int)
+	voteChan = make(chan int)
 	go selectLeader()
 }
