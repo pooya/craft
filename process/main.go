@@ -41,6 +41,7 @@ func main() {
 	}
 	stateMachineInit()
 	nodeInit()
+	parseConfig()
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)

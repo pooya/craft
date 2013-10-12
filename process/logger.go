@@ -20,20 +20,20 @@ const (
 	PersistLocation = "/tmp/persist/"
 )
 
-func getNextTerm() int {
+func getHighestTerm() int {
 	if LatestEntry != nil {
-		return LatestEntry.term + 1
+		return LatestEntry.term
 	}
-	return 0
+	return -1
+}
+
+func getNextTerm() int {
+	return getHighestTerm() + 1
 }
 
 func (l *LogEntry) persist() {
 	fmt.Fprintf(logFile, "%d|%d|%d|%d\n", l.term, l.index, l.response, l.serialNumber)
 	LatestEntry = l
-}
-
-func getHighestTerm() int {
-	return LatestEntry.term
 }
 
 func getLogEntry(serialNumber int) (*LogEntry, error) {
