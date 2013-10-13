@@ -38,6 +38,7 @@ func main() {
 	hostId, port := handleCommandLine()
 	node.Init()
 	config.Init(fmt.Sprintf("%d_%d", hostId, port))
+	node.CheckSelf()
 	logger.Init()
 	state.Init()
 	handler.Init(port)

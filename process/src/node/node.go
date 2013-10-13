@@ -2,6 +2,7 @@ package node
 
 import (
 	"fmt"
+	"log"
 
 	"config"
 )
@@ -47,4 +48,10 @@ func Init() {
 		addNode(getNode(Id, Ip, Port))
 	}
 	config.RegisterNodeHandler(handler)
+}
+
+func CheckSelf() {
+	if FindNode(config.UniqueId) == nil {
+		log.Fatal("We are not part of the config.")
+	}
 }
