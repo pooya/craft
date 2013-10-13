@@ -35,7 +35,8 @@ func (node *Node) sendRequest(req string) {
 }
 
 func sendVoteRequests(term int) {
-	for _, node := range Nodes {
+	f := func(node *Node) {
 		node.sendVoteRequest(term)
 	}
+	ForAllNodes(f)
 }

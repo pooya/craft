@@ -7,10 +7,6 @@ import (
 )
 
 const (
-	nProcesses = 1
-)
-
-const (
 	FOLLOWER  = iota
 	CANDIDATE = iota
 	LEADER    = iota
@@ -94,8 +90,10 @@ func voteIfEligible(sender string, term int) {
 }
 
 func transitionToCandidate() {
-	if status != FOLLOWER {
-		panic("should be follower")
+	if status == CANDIDATE {
+		return
+	} else if status == LEADER {
+		log.Fatal("A leader should not be getting votes.")
 	}
 	log.Print("I am a candidate now.")
 	status = CANDIDATE
@@ -115,9 +113,7 @@ func selectLeader() {
 		select {
 		case <-heartbeatChan:
 			log.Print("Got heartbeat.")
-			if status != LEADER {
-				transitionToFollower()
-			}
+			voteChan <- 0
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {

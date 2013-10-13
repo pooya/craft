@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+var nProcesses int
+
 func parseLine(line string) {
 	var id, port int
 	var ip string
@@ -18,6 +20,7 @@ func parseLine(line string) {
 	}
 	fmt.Print("Read ", id, port, " : ", ip, "\n")
 	addNode(getNode(id, ip, port))
+	nProcesses++
 }
 
 func parseConfig() {
@@ -31,6 +34,7 @@ func parseConfig() {
 		}
 	}()
 	r := bufio.NewReader(fi)
+	nProcesses = 0
 	for {
 		buf, err := r.ReadBytes('\n')
 		if err == io.EOF {
