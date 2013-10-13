@@ -82,11 +82,11 @@ func handleVote(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Sscanf(vote, "%d/%s", &term, &sender)
 	log.Print("got vote from ", sender, " with term ", term)
-	/*
-	   if the vote from the sender is not processed yet, add it to the
-	   voteChan
-	   For this term, use a hashmap that keeps the nodes.
-	*/
+    if term != LatestTerm {
+        log.Print("Vote is stale, since latestTerm is: ", LatestTerm)
+        return
+    }
+    voteChan <- sender
 }
 
 func startServer(port int) error {

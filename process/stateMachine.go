@@ -71,15 +71,18 @@ func captureVotes() {
 			transitionToFollower()
 			return
 		} else {
-			if contains, ok := voters[sender]; !ok {
-				if contains {
-					log.Fatal("ok must match contains.")
-				}
-				nVotes++
-				if nVotes > nProcesses/2 {
-					transitionToLeader()
-					return
-				}
+			if _, ok := voters[sender]; ok {
+				log.Print("vote from ", sender, " is already processed")
+				continue
+			}
+			if findNode(sender) == nil {
+				log.Print("Received vote from unknown sender: ", sender)
+				continue
+			}
+			nVotes++
+			if nVotes > nProcesses/2 {
+				transitionToLeader()
+				return
 			}
 		}
 	}
