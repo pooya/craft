@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+    "logger"
+    "state"
+    "config"
+    "node"
+    "handler"
 )
-
-var UniqueId string
-var heartbeatChan chan bool
 
 func processCommandLineArguments() (int, int, error) {
 	var hostId = flag.Int("hostId", 0, "The unique id for the host.")
@@ -23,30 +24,21 @@ func processCommandLineArguments() (int, int, error) {
 	return *hostId, *port, nil
 }
 
-func getMyUniqueId() string {
-	return UniqueId
-}
-
 func main() {
 	hostId, port, err := processCommandLineArguments()
 	if err != nil {
 		fmt.Println("Problem parsing arguments:", err)
 		return
 	}
-	heartbeatChan = make(chan bool)
-	UniqueId = fmt.Sprintf("%d_%d", hostId, port)
-	err = initLogger()
+	err = logger.Init()
 	if err != nil {
 		fmt.Println("Problem opening file", err)
 		return
 	}
-	stateMachineInit()
-	nodeInit()
-	parseConfig()
-	if findNode(UniqueId) == nil {
-		log.Fatal("Could not find myself in the config: ", UniqueId)
-	}
-	err = startServer(port)
+	state.Init()
+	node.Init()
+	config.Init(fmt.Sprintf("%d_%d", hostId, port))
+	err = handler.Init(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)
 		return
