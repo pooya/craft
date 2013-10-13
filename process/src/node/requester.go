@@ -27,7 +27,6 @@ func (node *Node) sendVoteRequest(term int) {
 
 func (node *Node) SendRequest(req string) {
 	url := fmt.Sprintf("http://%s:%d%s", node.Ip, node.Port, req)
-	fmt.Println("url is: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		//log.Print("Error sending request", err)
