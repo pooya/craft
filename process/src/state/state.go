@@ -17,6 +17,7 @@ const (
 )
 
 var HeartbeatChan chan bool
+var statusInput, statusOutput chan int
 
 const (
 	CONNECTION_TIMEOUT        = 100   // 100ms
@@ -25,17 +26,26 @@ const (
 	MAX_WAIT_BEFORE_CANDIDACY = 10000 // 5000ms
 )
 
-var status int
 var random *rand.Rand
 var VoteChan chan string
 var leader *node.Node
 
+func initStatus(i chan int, o chan int) int {
+	status := FOLLOWER
+	for {
+		select {
+		case status = <-i:
+		case o <- status:
+		}
+	}
+}
+
 func GetMyState() int {
-	return status
+	return <-statusOutput
 }
 
 func AmILeader() bool {
-	return status == LEADER
+	return GetMyState() == LEADER
 }
 
 func GetLeader() *node.Node {
@@ -57,7 +67,7 @@ func sendHeartBeats() {
 		node.SendRequest(config.HeartbeatPath + config.UniqueId)
 	}
 	for {
-		if status != LEADER {
+		if GetMyState() != LEADER {
 			return
 		}
 		node.ForAll(requestSender)
@@ -66,11 +76,11 @@ func sendHeartBeats() {
 }
 
 func transitionToLeader() {
-	if status != CANDIDATE {
+	if GetMyState() != CANDIDATE {
 		panic("should be follower")
 	}
 	log.Print("I am the leader now.")
-	status = LEADER
+	statusInput <- LEADER
 	go sendHeartBeats()
 }
 
@@ -113,14 +123,14 @@ func VoteIfEligible(sender string, term int) {
 }
 
 func transitionToCandidate() {
-	if status == CANDIDATE {
+	if GetMyState() == CANDIDATE {
 		// restart the vote requests with a new term.
 		VoteChan <- ""
-	} else if status == LEADER {
+	} else if GetMyState() == LEADER {
 		log.Fatal("A leader should not be getting votes.")
 	}
 	log.Print("I am a candidate now.")
-	status = CANDIDATE
+	statusInput <- CANDIDATE
 	logger.IncrementNextTerm()
 	go captureVotes()
 	node.SendVoteRequests()
@@ -129,7 +139,7 @@ func transitionToCandidate() {
 
 func transitionToFollower() {
 	log.Print("I am a follower now.")
-	status = FOLLOWER
+	statusInput <- FOLLOWER
 }
 
 func selectLeader() {
@@ -142,7 +152,7 @@ func selectLeader() {
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {
-				if status == LEADER {
+				if GetMyState() == LEADER {
 					log.Print("No heartbeat from myself")
 				} else {
 					log.Print("Timer Expired, claim the throne")
@@ -155,6 +165,8 @@ func selectLeader() {
 }
 
 func Init() {
+	statusInput, statusOutput = make(chan int), make(chan int)
+	go initStatus(statusInput, statusOutput)
 	HeartbeatChan = make(chan bool)
 	transitionToFollower()
 	random = rand.New(rand.NewSource(1))
