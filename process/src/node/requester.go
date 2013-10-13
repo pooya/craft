@@ -10,7 +10,7 @@ import (
 )
 
 func getVoteTail() string {
-	return fmt.Sprintf("%d/%s", logger.GetHighestTerm, config.UniqueId)
+	return fmt.Sprintf("%d/%s", logger.GetHighestTerm(), config.UniqueId)
 }
 
 func VoteFor(sender string) {
