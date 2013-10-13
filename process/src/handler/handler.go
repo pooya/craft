@@ -75,7 +75,12 @@ func handleVote(w http.ResponseWriter, r *http.Request) {
 		log.Print("Vote is stale, since latestTerm is: ", logger.GetHighestTerm())
 		return
 	}
-	state.VoteChan <- sender
+	if state.GetMyState() == state.CANDIDATE {
+		state.VoteChan <- sender
+	} else {
+		log.Printf("We are in state %d, and did not request votes\n",
+			state.GetMyState())
+	}
 }
 
 func Init(port int) {
