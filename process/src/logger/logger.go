@@ -17,22 +17,32 @@ type LogEntry struct {
 
 var logFile *os.File
 var LatestEntry *LogEntry
-var latestTerm int
+var latestTermInput, latestTermOutput chan int
 
 const (
 	PersistLocation = "/tmp/persist/"
 )
 
+func initLatestTerm(i chan int, o chan int) {
+	latestTerm := 0
+	for {
+		select {
+		case latestTerm = <-i:
+		case o <- latestTerm:
+		}
+	}
+}
+
 func GetHighestTerm() int {
-	return latestTerm
+	return <-latestTermOutput
 }
 
 func SetHighestTerm(term int) {
-	latestTerm = term
+	latestTermInput <- term
 }
 
 func IncrementNextTerm() {
-	latestTerm++
+	latestTermInput <- 1 + <-latestTermOutput
 }
 
 func GetNextTerm() int {
@@ -66,7 +76,8 @@ func GetLogEntry(serialNumber int) (*LogEntry, error) {
 }
 
 func Init() {
-	latestTerm = 0
+	latestTermInput, latestTermOutput = make(chan int), make(chan int)
+	go initLatestTerm(latestTermInput, latestTermOutput)
 	file, err := os.OpenFile(PersistLocation+config.UniqueId,
 		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
 	if err != nil {
