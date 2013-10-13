@@ -30,17 +30,22 @@ Command is a number that we should set the status to.
     http://<>/command/cmd/serialNumber
 */
 func handleCommand(w http.ResponseWriter, r *http.Request) {
+
+	idAndNumber := r.URL.Path[lenCommandPath:]
+	var cmd, serialNumber int
+	fmt.Sscanf(idAndNumber, "%d/%d", &cmd, &serialNumber)
+
 	if !amILeader() {
 		if Leader != nil {
-			http.Redirect(w, r, Leader.uniqeId, http.StatusFound)
+			str := fmt.Sprintf("http://%s:%d%s%d/%d",
+				Leader.ip, Leader.port, CommandPath, cmd, serialNumber)
+			log.Print(str)
+			http.Redirect(w, r, str, http.StatusSeeOther)
 		} else {
 			http.NotFound(w, r)
 		}
 		return
 	}
-	idAndNumber := r.URL.Path[lenCommandPath:]
-	var cmd, serialNumber int
-	fmt.Sscanf(idAndNumber, "%d/%d", &cmd, &serialNumber)
 	resp, err := processCommand(cmd, serialNumber)
 
 	if err != nil {

@@ -115,7 +115,9 @@ func selectLeader() {
 		select {
 		case <-heartbeatChan:
 			log.Print("Got heartbeat.")
-			transitionToFollower()
+			if status != LEADER {
+				transitionToFollower()
+			}
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {
