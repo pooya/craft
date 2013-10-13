@@ -27,9 +27,8 @@ const (
 
 var status int
 var random *rand.Rand
-var LatestEvent int64
 var VoteChan chan string
-var Leader *node.Node
+var leader *node.Node
 
 func GetMyState() int {
 	return status
@@ -40,11 +39,11 @@ func AmILeader() bool {
 }
 
 func GetLeader() *node.Node {
-	return Leader
+	return leader
 }
 
-func SetLeader(leader *node.Node) {
-	Leader = leader
+func SetLeader(node *node.Node) {
+	leader = node
 }
 
 func getCandidacyTimeout() int {
