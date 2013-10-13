@@ -27,6 +27,7 @@ var status int
 var random *rand.Rand
 var LatestEvent int64
 var voteChan chan int
+var Leader *Node
 
 func getMyState() int {
 	return status
@@ -39,10 +40,6 @@ func amILeader() bool {
 func getCandidacyTimeout() int {
 	return random.Intn(MAX_WAIT_BEFORE_CANDIDACY-MIN_WAIT_BEFORE_CANDIDACY) +
 		MIN_WAIT_BEFORE_CANDIDACY
-}
-
-func getLeader() string {
-	return "the other guy"
 }
 
 func sendHeartBeats() {
@@ -118,6 +115,7 @@ func selectLeader() {
 		select {
 		case <-heartbeatChan:
 			log.Print("Got heartbeat.")
+			transitionToFollower()
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {

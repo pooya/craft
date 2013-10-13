@@ -31,7 +31,11 @@ Command is a number that we should set the status to.
 */
 func handleCommand(w http.ResponseWriter, r *http.Request) {
 	if !amILeader() {
-		http.Redirect(w, r, getLeader(), http.StatusFound)
+		if Leader != nil {
+			http.Redirect(w, r, Leader.uniqeId, http.StatusFound)
+		} else {
+			http.NotFound(w, r)
+		}
 		return
 	}
 	idAndNumber := r.URL.Path[lenCommandPath:]
@@ -49,6 +53,11 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
 	sender := r.URL.Path[lenHeartbeatPath:]
 	log.Print("received heartbeat from ", sender)
+	node := findNode(sender)
+	if node == nil {
+		log.Print("sender is not part of config: ", sender)
+	}
+	Leader = node
 	heartbeatChan <- true
 	fmt.Fprintf(w, "Got it %s.\n", sender)
 }

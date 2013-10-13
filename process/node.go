@@ -14,7 +14,6 @@ type Node struct {
 type NodeVisitor func(node *Node)
 
 var Nodes map[string]*Node
-var Leader *Node
 
 func ForAllNodes(visitor NodeVisitor) {
 	for _, node := range Nodes {
