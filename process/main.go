@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 )
 
 var UniqueId string
@@ -42,6 +43,9 @@ func main() {
 	stateMachineInit()
 	nodeInit()
 	parseConfig()
+	if findNode(UniqueId) != nil {
+		log.Fatal("Could not find myself in the config: ", UniqueId)
+	}
 	err = startServer(port)
 	if err != nil {
 		fmt.Println("Problem starting server", err)
