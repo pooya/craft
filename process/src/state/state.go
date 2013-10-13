@@ -16,7 +16,7 @@ const (
 	LEADER    = iota
 )
 
-var HeartbeatChan chan bool
+var HeartbeatChan chan string
 var statusInput, statusOutput chan int
 
 const (
@@ -146,9 +146,13 @@ func selectLeader() {
 	heartbeat := true
 	for {
 		select {
-		case <-HeartbeatChan:
-			log.Print("Got heartbeat.")
-			VoteChan <- ""
+		case sender := <-HeartbeatChan:
+			if config.UniqueId != sender {
+				log.Print("Got heartbeat from myself")
+			} else {
+				log.Print("Got heartbeat from " + sender)
+				VoteChan <- ""
+			}
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {
@@ -167,7 +171,7 @@ func selectLeader() {
 func Init() {
 	statusInput, statusOutput = make(chan int), make(chan int)
 	go initStatus(statusInput, statusOutput)
-	HeartbeatChan = make(chan bool)
+	HeartbeatChan = make(chan string)
 	transitionToFollower()
 	random = rand.New(rand.NewSource(1))
 	VoteChan = make(chan string)
