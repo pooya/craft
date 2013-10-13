@@ -46,16 +46,15 @@ func getLeader() string {
 }
 
 func sendHeartBeats() {
+	//TODO make the following nonblocking with a timeout
+	requestSender := func(node *Node) {
+		node.sendRequest(HeartbeatPath + getMyUniqueId())
+	}
 	for {
 		if status != LEADER {
 			return
 		}
-		log.Print("sending heartbeat")
-		node := getNode(0, "0", 8080)
-		addNode(node)
-
-		//TODO make the following nonblocking with a timeout
-		node.sendRequest(HeartbeatPath + getMyUniqueId())
+		ForAllNodes(requestSender)
 		time.Sleep(HEARTBEAT_INTERVAL * time.Millisecond)
 	}
 }
