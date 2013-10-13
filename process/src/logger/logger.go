@@ -44,6 +44,10 @@ func (l *LogEntry) Persist() {
 }
 
 func GetLogEntry(serialNumber int) (*LogEntry, error) {
+    if config.UniqueId == "" {
+        panic("config not initialized yet.")
+    }
+    fmt.Println(config.UniqueId)
 	file, err := os.Open(PersistLocation + config.UniqueId)
 	if err != nil {
 		log.Fatal(err)
@@ -60,12 +64,12 @@ func GetLogEntry(serialNumber int) (*LogEntry, error) {
 	}
 }
 
-func Init() error {
+func Init() {
 	latestTerm = 0
 	file, err := os.OpenFile(PersistLocation+ config.UniqueId,
 		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
-	if err == nil {
-		logFile = file
-	}
-	return err
+	if err != nil {
+        log.Fatal("Could not open log file")
+    }
+    logFile = file
 }

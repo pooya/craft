@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
     "logger"
     "state"
     "config"
@@ -24,23 +25,19 @@ func processCommandLineArguments() (int, int, error) {
 	return *hostId, *port, nil
 }
 
-func main() {
+func handleCommandLine() (int, int) {
 	hostId, port, err := processCommandLineArguments()
 	if err != nil {
-		fmt.Println("Problem parsing arguments:", err)
-		return
+        log.Fatal("Problem parsing arguments:", err)
 	}
-	err = logger.Init()
-	if err != nil {
-		fmt.Println("Problem opening file", err)
-		return
-	}
-	state.Init()
+    return hostId, port
+}
+
+func main() {
+    hostId, port := handleCommandLine()
 	node.Init()
 	config.Init(fmt.Sprintf("%d_%d", hostId, port))
-	err = handler.Init(port)
-	if err != nil {
-		fmt.Println("Problem starting server", err)
-		return
-	}
+	logger.Init()
+	state.Init()
+	handler.Init(port)
 }

@@ -77,12 +77,15 @@ func handleVote(w http.ResponseWriter, r *http.Request) {
     state.VoteChan <- sender
 }
 
-func Init(port int) error {
+func Init(port int) {
 	http.HandleFunc(config.StatusPath, getStatus)
 	http.HandleFunc(config.CommandPath, handleCommand)
 	http.HandleFunc(config.HeartbeatPath, handleHeartBeat)
 	http.HandleFunc(config.VoteForMePath, handleVoteRequest)
 	http.HandleFunc(config.VotePath, handleVote)
 	strPort := fmt.Sprintf(":%d", port)
-	return http.ListenAndServe(strPort, nil)
+    err := http.ListenAndServe(strPort, nil)
+    if err != nil {
+        log.Fatal("Could not start server: ", err)
+    }
 }
