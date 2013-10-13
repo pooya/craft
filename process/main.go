@@ -43,7 +43,7 @@ func main() {
 	stateMachineInit()
 	nodeInit()
 	parseConfig()
-	if findNode(UniqueId) != nil {
+	if findNode(UniqueId) == nil {
 		log.Fatal("Could not find myself in the config: ", UniqueId)
 	}
 	err = startServer(port)
