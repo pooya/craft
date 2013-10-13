@@ -13,16 +13,16 @@ const (
 )
 
 const (
-	CONNECTION_TIMEOUT        = 100  // 100ms
-	HEARTBEAT_INTERVAL        = 1000 // 1s
-	MIN_WAIT_BEFORE_CANDIDACY = 2000 // 1000ms
-	MAX_WAIT_BEFORE_CANDIDACY = 5000 // 5000ms
+	CONNECTION_TIMEOUT        = 100   // 100ms
+	HEARTBEAT_INTERVAL        = 1000  // 1s
+	MIN_WAIT_BEFORE_CANDIDACY = 5000  // 1000ms
+	MAX_WAIT_BEFORE_CANDIDACY = 10000 // 5000ms
 )
 
 var status int
 var random *rand.Rand
 var LatestEvent int64
-var voteChan chan int
+var voteChan chan string
 var Leader *Node
 
 func getMyState() int {
@@ -63,17 +63,23 @@ func transitionToLeader() {
 
 func captureVotes() {
 	nVotes := 0
+	voters := make(map[string]bool)
 	for {
-		x := <-voteChan
-		if x == 0 {
+		sender := <-voteChan
+		if sender == "" {
 			log.Print("Someone asked us not to be the leader. Stepping down.")
 			transitionToFollower()
 			return
 		} else {
-			nVotes++
-			if nVotes > nProcesses/2 {
-				transitionToLeader()
-				return
+			if contains, ok := voters[sender]; !ok {
+				if contains {
+					log.Fatal("ok must match contains.")
+				}
+				nVotes++
+				if nVotes > nProcesses/2 {
+					transitionToLeader()
+					return
+				}
 			}
 		}
 	}
@@ -85,21 +91,24 @@ func voteIfEligible(sender string, term int) {
 		log.Print("Ignoring vote request for term: ", term,
 			" since we are at ", highestTerm)
 	} else {
-		//voteFor(sender)
+		voteFor(sender)
+		setHighestTerm(term)
 	}
 }
 
 func transitionToCandidate() {
 	if status == CANDIDATE {
-		return
+		// restart the vote requests with a new term.
+		voteChan <- ""
 	} else if status == LEADER {
 		log.Fatal("A leader should not be getting votes.")
 	}
 	log.Print("I am a candidate now.")
 	status = CANDIDATE
+	incrementNextTerm()
 	go captureVotes()
 	sendVoteRequests(getNextTerm())
-	voteChan <- 1
+	voteChan <- UniqueId
 }
 
 func transitionToFollower() {
@@ -113,7 +122,7 @@ func selectLeader() {
 		select {
 		case <-heartbeatChan:
 			log.Print("Got heartbeat.")
-			voteChan <- 0
+			voteChan <- ""
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
 			if !heartbeat {
@@ -132,6 +141,6 @@ func selectLeader() {
 func stateMachineInit() {
 	transitionToFollower()
 	random = rand.New(rand.NewSource(1))
-	voteChan = make(chan int)
+	voteChan = make(chan string)
 	go selectLeader()
 }

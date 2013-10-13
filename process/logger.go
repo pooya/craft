@@ -15,16 +15,22 @@ type LogEntry struct {
 
 var logFile *os.File
 var LatestEntry *LogEntry
+var LatestTerm int
 
 const (
 	PersistLocation = "/tmp/persist/"
 )
 
 func getHighestTerm() int {
-	if LatestEntry != nil {
-		return LatestEntry.term
-	}
-	return -1
+	return LatestTerm
+}
+
+func setHighestTerm(term int) {
+	LatestTerm = term
+}
+
+func incrementNextTerm() {
+	LatestTerm++
 }
 
 func getNextTerm() int {
@@ -54,6 +60,7 @@ func getLogEntry(serialNumber int) (*LogEntry, error) {
 }
 
 func initLogger() error {
+	LatestTerm = 0
 	file, err := os.OpenFile(PersistLocation+getMyUniqueId(),
 		os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0666)
 	if err == nil {

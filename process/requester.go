@@ -6,25 +6,28 @@ import (
 	"net/http"
 )
 
+func getVoteTail() string {
+	return fmt.Sprintf("%d/%s", LatestTerm, getMyUniqueId())
+}
+
 func voteFor(sender string) {
 	node := findNode(sender)
 	if node == nil {
-		/* TODO: we do not know this node, request for the nodes info. */
-		/* Or, parse all of the nodes from a static file, and if node is nil,
-		   we will not ignore it. */
+		log.Fatal("Could not find the node we wanted to vote for.")
 	}
-	node.sendRequest(VotePath + getMyUniqueId())
+	node.sendRequest(VotePath + getVoteTail())
 }
 
 func (node *Node) sendVoteRequest(term int) {
-	node.sendRequest(VoteForMePath + fmt.Sprint(term))
+	node.sendRequest(VoteForMePath + getVoteTail())
 }
 
 func (node *Node) sendRequest(req string) {
 	url := fmt.Sprintf("http://%s:%d%s", node.ip, node.port, req)
+	fmt.Println("url is: ", url)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Print("Error sending request", err)
+		//log.Print("Error sending request", err)
 		return
 	}
 	defer resp.Body.Close()

@@ -15,20 +15,17 @@ const (
 	CommandPath   = "/command/"   // sample 0:8080/command/11/20
 	HeartbeatPath = "/heartbeat/" // sample 0:8080/heartbeat/2_8080
 	VoteForMePath = "/voteforme/" // sample 0:8080/voteforme/1/3_8080
-	VotePath      = "/vote/"      // sample 0:8080/vote/3_8080
+	VotePath      = "/vote/"      // sample 0:8080/vote/1/3_8080
 )
 
 const (
 	lenStatusPath    = len(StatusPath)
 	lenCommandPath   = len(CommandPath)
 	lenHeartbeatPath = len(HeartbeatPath)
-	lenVoteForMePath = len(CommandPath)
+	lenVoteForMePath = len(VoteForMePath)
+	lenVotePath      = len(VotePath)
 )
 
-/*
-Command is a number that we should set the status to.
-    http://<>/command/cmd/serialNumber
-*/
 func handleCommand(w http.ResponseWriter, r *http.Request) {
 
 	idAndNumber := r.URL.Path[lenCommandPath:]
@@ -72,9 +69,24 @@ func handleVoteRequest(w http.ResponseWriter, r *http.Request) {
 
 	var term int
 	var sender string
+	log.Print("received vote request: ", voteRequest)
 	fmt.Sscanf(voteRequest, "%d/%s", &term, &sender)
 	log.Print("received vote request from ", sender, " and term ", term)
 	voteIfEligible(sender, term)
+}
+
+func handleVote(w http.ResponseWriter, r *http.Request) {
+	vote := r.URL.Path[lenVotePath:]
+	var term int
+	var sender string
+
+	fmt.Sscanf(vote, "%d/%s", &term, &sender)
+	log.Print("got vote from ", sender, " with term ", term)
+	/*
+	   if the vote from the sender is not processed yet, add it to the
+	   voteChan
+	   For this term, use a hashmap that keeps the nodes.
+	*/
 }
 
 func startServer(port int) error {
@@ -82,6 +94,7 @@ func startServer(port int) error {
 	http.HandleFunc(CommandPath, handleCommand)
 	http.HandleFunc(HeartbeatPath, handleHeartBeat)
 	http.HandleFunc(VoteForMePath, handleVoteRequest)
+	http.HandleFunc(VotePath, handleVote)
 	strPort := fmt.Sprintf(":%d", port)
 	return http.ListenAndServe(strPort, nil)
 }
