@@ -2,7 +2,8 @@ package handler
 
 import (
 	"fmt"
-    "logger"
+
+	"logger"
 )
 
 var LatestLogEntry logger.LogEntry

@@ -1,14 +1,15 @@
 package main
 
 import (
+	"config"
 	"flag"
 	"fmt"
 	"log"
-    "logger"
-    "state"
-    "config"
-    "node"
-    "handler"
+
+	"handler"
+	"logger"
+	"node"
+	"state"
 )
 
 func processCommandLineArguments() (int, int, error) {
@@ -28,13 +29,13 @@ func processCommandLineArguments() (int, int, error) {
 func handleCommandLine() (int, int) {
 	hostId, port, err := processCommandLineArguments()
 	if err != nil {
-        log.Fatal("Problem parsing arguments:", err)
+		log.Fatal("Problem parsing arguments:", err)
 	}
-    return hostId, port
+	return hostId, port
 }
 
 func main() {
-    hostId, port := handleCommandLine()
+	hostId, port := handleCommandLine()
 	node.Init()
 	config.Init(fmt.Sprintf("%d_%d", hostId, port))
 	logger.Init()

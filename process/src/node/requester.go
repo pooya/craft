@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-    "config"
-    "logger"
+
+	"config"
+	"logger"
 )
 
 func getVoteTail() string {

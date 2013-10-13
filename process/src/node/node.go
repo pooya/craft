@@ -2,7 +2,8 @@ package node
 
 import (
 	"fmt"
-    "config"
+
+	"config"
 )
 
 type Node struct {
@@ -42,8 +43,8 @@ func addNode(node *Node) {
 
 func Init() {
 	Nodes = make(map[string]*Node)
-    handler := func(Id int, Ip string, Port int) {
-        addNode(getNode(Id, Ip, Port))
-    }
-    config.RegisterNodeHandler(handler)
+	handler := func(Id int, Ip string, Port int) {
+		addNode(getNode(Id, Ip, Port))
+	}
+	config.RegisterNodeHandler(handler)
 }

@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-    "config"
-    "logger"
-    "state"
-    "node"
+
+	"config"
+	"logger"
+	"node"
+	"state"
 )
 
 func getStatus(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +48,7 @@ func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
 	if node == nil {
 		log.Print("sender is not part of config: ", sender)
 	}
-    state.SetLeader(node)
+	state.SetLeader(node)
 	state.HeartbeatChan <- true
 	fmt.Fprintf(w, "Got it %s.\n", sender)
 }
@@ -70,11 +71,11 @@ func handleVote(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Sscanf(vote, "%d/%s", &term, &sender)
 	log.Print("got vote from ", sender, " with term ", term)
-    if term != logger.GetHighestTerm() {
-        log.Print("Vote is stale, since latestTerm is: ", logger.GetHighestTerm())
-        return
-    }
-    state.VoteChan <- sender
+	if term != logger.GetHighestTerm() {
+		log.Print("Vote is stale, since latestTerm is: ", logger.GetHighestTerm())
+		return
+	}
+	state.VoteChan <- sender
 }
 
 func Init(port int) {
@@ -84,8 +85,8 @@ func Init(port int) {
 	http.HandleFunc(config.VoteForMePath, handleVoteRequest)
 	http.HandleFunc(config.VotePath, handleVote)
 	strPort := fmt.Sprintf(":%d", port)
-    err := http.ListenAndServe(strPort, nil)
-    if err != nil {
-        log.Fatal("Could not start server: ", err)
-    }
+	err := http.ListenAndServe(strPort, nil)
+	if err != nil {
+		log.Fatal("Could not start server: ", err)
+	}
 }

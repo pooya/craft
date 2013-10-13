@@ -1,12 +1,13 @@
 package state
 
 import (
-	"config"
 	"log"
-	"logger"
 	"math/rand"
-	"node"
 	"time"
+
+	"config"
+	"logger"
+	"node"
 )
 
 const (

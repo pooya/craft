@@ -30,8 +30,9 @@ var UniqueId string
 type NodeHandler func(id int, ip string, port int)
 
 var nodeHandler NodeHandler
+
 func RegisterNodeHandler(handler NodeHandler) {
-    nodeHandler = handler
+	nodeHandler = handler
 }
 
 func parseLine(line string) {
@@ -43,12 +44,12 @@ func parseLine(line string) {
 		log.Fatal("Could not read the line: ", err)
 	}
 	fmt.Print("Read ", id, port, " : ", ip, "\n")
-    nodeHandler(id, ip, port)
+	nodeHandler(id, ip, port)
 	NProcesses++
 }
 
 func Init(myId string) {
-    UniqueId = myId
+	UniqueId = myId
 	fi, err := os.Open("config")
 	if err != nil {
 		log.Fatal("Could not open the config file", err)
