@@ -154,10 +154,10 @@ func selectLeader() {
 	for {
 		select {
 		case sender := <-HeartbeatChan:
-			if config.UniqueId != sender {
+			if config.UniqueId == sender {
 				log.Print("Got heartbeat from myself")
 			} else {
-				log.Print("Got heartbeat from " + sender)
+				log.Print("I am: " + config.UniqueId + ", got heartbeat from " + sender)
 				VoteChan <- ""
 				node := node.FindNode(sender)
 				if node == nil {
