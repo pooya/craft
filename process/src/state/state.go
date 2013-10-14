@@ -18,6 +18,7 @@ const (
 
 var HeartbeatChan chan string
 var statusInput, statusOutput chan int
+var leaderInput, leaderOutput chan *node.Node
 
 const (
 	CONNECTION_TIMEOUT        = 100   // 100ms
@@ -28,14 +29,24 @@ const (
 
 var random *rand.Rand
 var VoteChan chan string
-var leader *node.Node
 
-func initStatus(i chan int, o chan int) int {
+func initStatus(i chan int, o chan int) {
 	status := FOLLOWER
 	for {
 		select {
 		case status = <-i:
 		case o <- status:
+		}
+	}
+}
+
+func initLeader(i chan *node.Node, o chan *node.Node) {
+	var leader *node.Node
+	leader = nil
+	for {
+		select {
+		case leader = <-i:
+		case o <- leader:
 		}
 	}
 }
@@ -49,11 +60,7 @@ func AmILeader() bool {
 }
 
 func GetLeader() *node.Node {
-	return leader
-}
-
-func SetLeader(node *node.Node) {
-	leader = node
+	return <-leaderOutput
 }
 
 func getCandidacyTimeout() int {
@@ -156,7 +163,7 @@ func selectLeader() {
 				if node == nil {
 					log.Fatal("sender is not part of config: ", sender)
 				}
-				SetLeader(node)
+				leaderInput <- node
 			}
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
@@ -175,7 +182,9 @@ func selectLeader() {
 
 func Init() {
 	statusInput, statusOutput = make(chan int), make(chan int)
+	leaderInput, leaderOutput = make(chan *node.Node), make(chan *node.Node)
 	go initStatus(statusInput, statusOutput)
+	go initLeader(leaderInput, leaderOutput)
 	HeartbeatChan = make(chan string)
 	transitionToFollower()
 	random = rand.New(rand.NewSource(1))
