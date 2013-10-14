@@ -187,7 +187,7 @@ func Init() {
 	go initLeader(leaderInput, leaderOutput)
 	HeartbeatChan = make(chan string)
 	transitionToFollower()
-	random = rand.New(rand.NewSource(1))
+	random = rand.New(rand.NewSource(time.Now().UTC().UnixNano()))
 	VoteChan = make(chan string)
 	go selectLeader()
 }
