@@ -7,7 +7,6 @@ import (
 
 	"config"
 	"logger"
-	"node"
 	"state"
 )
 
@@ -44,15 +43,10 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 func handleHeartBeat(w http.ResponseWriter, r *http.Request) {
 	sender := r.URL.Path[config.LenHeartbeatPath:]
 	log.Print("received heartbeat from ", sender)
-	node := node.FindNode(sender)
-	if node == nil {
-		log.Fatal("sender is not part of config: ", sender)
-	} else if state.AmILeader() && config.UniqueId != sender {
+	if state.AmILeader() && config.UniqueId != sender {
 		panic("Got heartbeat from " + sender + ", but I am the leader")
 	}
-	state.SetLeader(node)
 	state.HeartbeatChan <- sender
-	fmt.Fprintf(w, "Got it %s.\n", sender)
 }
 
 func handleVoteRequest(w http.ResponseWriter, r *http.Request) {

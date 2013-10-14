@@ -152,6 +152,11 @@ func selectLeader() {
 			} else {
 				log.Print("Got heartbeat from " + sender)
 				VoteChan <- ""
+				node := node.FindNode(sender)
+				if node == nil {
+					log.Fatal("sender is not part of config: ", sender)
+				}
+				SetLeader(node)
 			}
 			heartbeat = true
 		case <-time.After(time.Duration(getCandidacyTimeout()) * time.Millisecond):
